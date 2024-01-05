@@ -17,40 +17,50 @@
 #include QMK_KEYBOARD_H
 
 enum layers {
-  _QWERTY,
-  _LOWER,
-  _RAISE,
+  _BASE,
+  _LOWER, // NUMPAD
+  _RAISE, // SYMBOLS
+  _VIM,   // HJKL
+  _RESET, // QWERTY
+  _ADJUST // MEDIA/KEYBOARD CONTROLS
 };
 
-#define LOWER MO(_LOWER)
-#define RAISE MO(_RAISE)
+#define LOWER LT(_LOWER,KC_A)
+#define RAISE LT(_RAISE,KC_SCLN)
+#define VIM LT(_VIM,KC_F)
+#define ADJUST MO(_ADJUST)
+#define SPACES_LEFT LGUI(LSFT(KC_H))
+#define SPACES_RIGHT RGUI(RSFT(KC_L))
+#define CMD_SHIFT_8 RGUI(LSFT(KC_8))
+#define CMD_SHIFT_9 RGUI(LSFT(KC_9))
+#define CMD_SHIFT_0 RGUI(LSFT(KC_0))
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Qwerty
  * ,-----------------------------------------------------------------------------------.
- * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |  /   |
+ * |   `  | Vol- | Vol+ | Play |   4  |   5  |   6  |   7  |Wcentr|WRight|WLeft | RCST |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Del  |
+ * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  |Bspc  |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * | CTRL |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  '   |
+ * | CTRL | A|LWR|   S  |   D  | F|VIM|   G  |   H  |   J  |   K  | L|RSE|   ;  |Enter |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |  Up  |Enter |
+ * |  <-  |   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |  ->  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Esc  | GUI  |  Alt |Lower |  Backspace  |    Space    |Raise | Left | Down |Right |
+ * | <--- | L_ADJ|  Alt |  <-  | Esc  |Space |Shift | Cmd  |  ->  | RCST | L_RST| ---> |
  * `-----------------------------------------------------------------------------------'
  */
-[_QWERTY] = LAYOUT_2x2u(
-  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_SLSH,
-  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_DEL,
-  KC_ESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP,   KC_ENT,
-  KC_LCTL, KC_LGUI, KC_LALT, LOWER,      KC_BSPC,           KC_SPC,       RAISE,   KC_LEFT, KC_DOWN, KC_RGHT
+[_BASE] = LAYOUT_ortho_5x12(
+  KC_GRV,        KC_VOLD, KC_VOLU, KC_MPLY,       KC_4,   KC_5,   KC_6,    KC_7,    CMD_SHIFT_8,    CMD_SHIFT_9,  CMD_SHIFT_0, RALT(KC_SPC),
+  KC_TAB,        KC_Q,    KC_W,    KC_E,          KC_R,   KC_T,   KC_Y,    KC_U,    KC_I,           KC_O,         KC_P,        KC_BSPC,
+  KC_LCTL,       LOWER,   KC_S,    KC_D,          VIM,    KC_G,   KC_H,    KC_J,    KC_K,           KC_L,         RAISE,       KC_ENTER,
+  LALT(KC_LEFT), KC_Z,    KC_X,    KC_C,          KC_V,   KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    RALT(KC_RIGHT),
+  SPACES_LEFT,   ADJUST,  KC_LALT, LALT(KC_LEFT), KC_ESC, KC_SPC, KC_RSFT, KC_RGUI, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
 ),
 
-/* Raise
+/* Adjust
  * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * | Vol- | Vol+ | Play |      |      |      |      |      |      |      |      |      |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * |      |      |      |      |      |      |      |   _  |   +  |   {  |   }  |      |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
@@ -58,36 +68,99 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|------+------+------+------+------+------|
  * |      |RGB_TG|RGB_M |RGB_HU|RGB_SI|RGB_VI|RGB_SP|      |      |      |   |  |   \  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |Debug |      |      |      |             |             |      |      |      |R Alt |
+ * |Debug |      |      |      |      |      |      |      |      |      |      |R Alt |
  * `-----------------------------------------------------------------------------------'
  */
-[_RAISE] = LAYOUT_2x2u(
-  _______, _______,  _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
+[_ADJUST] = LAYOUT_ortho_5x12(
+  KC_VOLD, KC_VOLU,  KC_MPLY, _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______,  _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, _______,
   _______, _______,  _______, _______, _______, _______, _______, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
   _______, RGB_TOG,  RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI, _______, _______, _______, KC_PIPE, KC_BSLS,
-  DB_TOGG, _______,  _______, _______,    _______,          _______,       _______, _______, _______, KC_RALT
+  DB_TOGG, _______,  _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_RALT
+),
+
+/* Reset
+ * ,-----------------------------------------------------------------------------------.
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+-------------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------|------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * `-----------------------------------------------------------------------------------'
+ */
+[_RESET] = LAYOUT_ortho_5x12(
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_A,           KC_TRANSPARENT, KC_TRANSPARENT, KC_F,           KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_SCLN,        KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
 ),
 
 /* Lower
  * ,-----------------------------------------------------------------------------------.
- * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  | F7   |  F8  |  F9  |  F10 |  F11 |  F12 |
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | CAPS | PSCR |      |      |      |      |      |      |      |      |      |      |
+ * |      |      |      |      |      |      |  +   |  7   |  8   |  9   |  *   |      |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      | Home | End  | Ins  | Play |      |      |      |      |      |      |      |
+ * |      |      |      |      |      |      |  0   |  4   |  5   |  6   |  .   |      |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |      |  <<  |  >>  | Mute | Vol- | Vol+ |      |      |      |      | PgUp |      |
+ * |      |      |      |      |      |      |  =   |  1   |  2   |  3   |  \   |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |             |             |      |      | PgDn |      |
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
  * `-----------------------------------------------------------------------------------'
  */
-[_LOWER] = LAYOUT_2x2u(
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-  KC_CAPS, KC_PSCR, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-  _______, KC_HOME, KC_END,  KC_INS,  KC_MPLY, _______, _______, _______, _______, _______, _______, _______,
-  _______, KC_MPRV, KC_MNXT, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______, _______, _______, KC_PGUP, _______,
-  _______, _______, _______, _______,     _______,          _______,      _______, _______, KC_PGDN, _______
+[_LOWER] = LAYOUT_ortho_5x12(
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_PLUS,        KC_7,           KC_8,           KC_9,           KC_ASTR,        KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_0,           KC_4,           KC_5,           KC_6,           KC_KP_DOT,      KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_EQUAL,       KC_1,           KC_2,           KC_3,           KC_BSLS,        KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
+),
+
+/* Raise
+ * ,-----------------------------------------------------------------------------------.
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |  !   |  @   |  #   |  &   |      |  {   |  }   |      |      |      |      |
+ * |------+------+------+------+------+-------------+------+------+------+------+------|
+ * |      |  0   |  |   |  "   |  $   |      |  (   |  )   |      |      |      |      |
+ * |------+------+------+------+------+------|------+------+------+------+------+------|
+ * |      |  `   |  ~   |  '   |  %   |      |  [   |  ]   |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * `-----------------------------------------------------------------------------------'
+ */
+[_RAISE] = LAYOUT_ortho_5x12(
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_EXLM,        KC_AT,          KC_HASH,        KC_DQUO,        KC_AMPR,        KC_TRANSPARENT, KC_LCBR,        KC_RCBR,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_0,           KC_PIPE,        KC_UNDS,        KC_MINUS,       KC_DLR,         KC_TRANSPARENT, KC_LPRN,        KC_RPRN,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_GRAVE,       KC_TILD,        KC_CIRC,        KC_QUOTE,       KC_PERC,        KC_TRANSPARENT, KC_LBRC,        KC_RBRC,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
+),
+
+/* Vim
+ * ,-----------------------------------------------------------------------------------.
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+-------------+------+------+------+------+------|
+ * |      |      |      |      |      |      | LEFT | DOWN |  UP  |RIGHT |      |      |
+ * |------+------+------+------+------+------|------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * `-----------------------------------------------------------------------------------'
+ */
+[_VIM] = LAYOUT_ortho_5x12(
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
 ),
 
 };
