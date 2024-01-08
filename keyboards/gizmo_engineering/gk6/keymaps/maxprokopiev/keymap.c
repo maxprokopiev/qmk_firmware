@@ -55,7 +55,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,        KC_Q,    KC_W,    KC_E,          KC_R,   KC_T,   KC_Y,    KC_U,    KC_I,           KC_O,         KC_P,        KC_BSPC,
   KC_LCTL,       LOWER,   KC_S,    KC_D,          VIM,    KC_G,   KC_H,    KC_J,    KC_K,           KC_L,         RAISE,       KC_ENTER,
   LALT(KC_LEFT), KC_Z,    KC_X,    KC_C,          KC_V,   KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    RALT(KC_RIGHT),
-  SPACES_LEFT,   ADJUST,  KC_LALT, LALT(KC_LEFT), KC_SPC, KC_ESC, KC_RGUI, KC_RSFT, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
+  SPACES_LEFT,   ADJUST,  KC_LALT, LALT(KC_LEFT), KC_ESC, KC_SPC, KC_RGUI, KC_RSFT, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
 ),
 
 /* Adjust
@@ -167,11 +167,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef RGB_MATRIX_ENABLE
 bool rgb_matrix_indicators_user(void) {
-    rgb_matrix_set_color(24, 0, 0, 0);
-    rgb_matrix_set_color(30, 0, 0, 0);
-    rgb_matrix_set_color(35, 0, 0, 0);
+    rgb_matrix_set_color(25, 0, 0, 0);
     rgb_matrix_set_color(36, 0, 0, 0);
-    rgb_matrix_set_color(41, 0, 0, 0);
+    rgb_matrix_set_color(42, 0, 0, 0);
     return false;
+}
+
+void keyboard_pre_init_user(void) {
+    // 5, 9,  14, 19, 24, 30, 35, 40, 46, 51, 55, 60
+    g_led_config.matrix_co[4][0] = 5;
+    g_led_config.matrix_co[4][1] = 9;
+    g_led_config.matrix_co[4][2] = 14;
+    g_led_config.matrix_co[4][3] = 19;
+    g_led_config.matrix_co[4][4] = 24;
+    g_led_config.matrix_co[4][5] = 30;
+    g_led_config.matrix_co[4][6] = 35;
+    g_led_config.matrix_co[4][7] = 41;
+    g_led_config.matrix_co[4][8] = 47;
+    g_led_config.matrix_co[4][9] = 52;
+    g_led_config.matrix_co[4][10] = 57;
+    g_led_config.matrix_co[4][11] = 62;
 }
 #endif
