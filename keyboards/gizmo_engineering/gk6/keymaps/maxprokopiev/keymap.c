@@ -121,13 +121,15 @@ void send_tmux_key(uint16_t keycode) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     tap_dance_action_t *action;
+    tap_dance_state_t *state;
 
     switch (keycode) {
         case TD(TD_X_CMDX):
         case TD(TD_C_CMDC):
         case TD(TD_V_CMDV):
-            action = &tap_dance_actions[TD_INDEX(keycode)];
-            if (!record->event.pressed && action->state.count && !action->state.finished) {
+            action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
+            state = tap_dance_get_state(QK_TAP_DANCE_GET_INDEX(keycode));
+            if (!record->event.pressed && state != NULL && state->count && !state->finished) {
                 tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
                 tap_code16(tap_hold->tap);
             }
@@ -247,7 +249,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_VOLD, KC_VOLU,  KC_MPLY, _______, _______, _______, _______, _______, _______, _______, _______, _______,
   _______, _______,  _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, _______,
   _______, _______,  _______, _______, _______, _______, _______, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
-  _______, RGB_TOG,  RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI, _______, _______, _______, KC_PIPE, KC_BSLS,
+  _______, RM_TOGG,  RM_NEXT, RM_HUEU, RM_SATU, RM_VALU, RM_SPDU, _______, _______, _______, KC_PIPE, KC_BSLS,
   DB_TOGG, _______,  _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_RALT
 ),
 
