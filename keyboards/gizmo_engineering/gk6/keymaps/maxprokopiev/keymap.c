@@ -54,7 +54,7 @@ enum custom_keycodes {
 #define LOWER LT(_LOWER,KC_A)
 #define RAISE LT(_RAISE,KC_SCLN)
 #define VIM LT(_VIM,KC_F)
-#define TMUX LT(_TMUX,KC_E)
+#define TMUX MO(_TMUX)
 #define ADJUST MO(_ADJUST)
 #define SPACES_LEFT LGUI(LSFT(KC_H))
 #define SPACES_RIGHT RGUI(RSFT(KC_L))
@@ -148,21 +148,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------------------------------------------------.
  * |   `  | Vol- | Vol+ | Play |   4  |   5  |   6  |   7  |Wcentr|WRight|WLeft | RCST |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |E|TMUX|   R  |   T  |   Y  |   U  |   I  |   O  |   P  |Bspc  |
+ * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  |Bspc  |
  * |------+------+------+------+------+-------------+------+------+------+------+------|
  * | CTRL | A|LWR|   S  |   D  | F|VIM|   G  |   H  |   J  |   K  | L|RSE|   ;  |Enter |
  * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |  <-  |   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |  ->  |
+ * | TMUX |   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  | TMUX |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | <--- | L_ADJ|  Alt |  <-  | Esc  |Space | Cmd  |Shift |  ->  | RCST | L_RST| ---> |
  * `-----------------------------------------------------------------------------------'
  */
 [_BASE] = LAYOUT_ortho_5x12(
-  KC_GRV,        KC_VOLD, KC_VOLU, KC_MPLY,       KC_4,   KC_5,   KC_6,    KC_7,    CMD_SHIFT_8,    CMD_SHIFT_9,  CMD_SHIFT_0, RALT(KC_SPC),
-  KC_TAB,        KC_Q,    KC_W,    TMUX,          KC_R,   KC_T,   KC_Y,    KC_U,    KC_I,           KC_O,         KC_P,        KC_BSPC,
-  KC_LCTL,       LOWER,   KC_S,    KC_D,          VIM,    KC_G,   KC_H,    KC_J,    KC_K,           KC_L,         RAISE,       KC_ENTER,
-  LALT(KC_LEFT), KC_Z,    KC_X,    KC_C,          KC_V,   KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    RALT(KC_RIGHT),
-  SPACES_LEFT,   ADJUST,  KC_LALT, LALT(KC_LEFT), KC_ESC, KC_SPC, KC_RGUI, KC_RSFT, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
+  KC_GRV,      KC_VOLD, KC_VOLU, KC_MPLY,       KC_4,   KC_5,   KC_6,    KC_7,    CMD_SHIFT_8,    CMD_SHIFT_9,  CMD_SHIFT_0, RALT(KC_SPC),
+  KC_TAB,      KC_Q,    KC_W,    KC_E,          KC_R,   KC_T,   KC_Y,    KC_U,    KC_I,           KC_O,         KC_P,        KC_BSPC,
+  KC_LCTL,     LOWER,   KC_S,    KC_D,          VIM,    KC_G,   KC_H,    KC_J,    KC_K,           KC_L,         RAISE,       KC_ENTER,
+  TMUX,        KC_Z,    KC_X,    KC_C,          KC_V,   KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    TMUX,
+  SPACES_LEFT, ADJUST,  KC_LALT, LALT(KC_LEFT), KC_ESC, KC_SPC, KC_RGUI, KC_RSFT, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
 ),
 
 /* Adjust
@@ -201,7 +201,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_RESET] = LAYOUT_ortho_5x12(
   KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
-  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_E,           KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+  KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
   KC_TRANSPARENT, KC_A,           KC_TRANSPARENT, KC_TRANSPARENT, KC_F,           KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_SCLN,        KC_TRANSPARENT,
   KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
   KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
@@ -270,7 +270,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
 ),
 
-/* Tmux - Hold E to activate
+/* Tmux - Hold left or right TMUX key to activate
  * ,-----------------------------------------------------------------------------------.
  * |      |  1   |  2   |  3   |  4   |  5   |      |      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
