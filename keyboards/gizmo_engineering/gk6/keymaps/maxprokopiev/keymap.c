@@ -51,6 +51,57 @@ enum custom_keycodes {
   TMUX_RBRC,            // Paste buffer
 };
 
+// Tap Dance declarations
+enum {
+    TD_X_CMDX, // Tap for X, hold for Cmd+X
+    TD_C_CMDC, // Tap for C, hold for Cmd+C
+    TD_V_CMDV, // Tap for V, hold for Cmd+V
+};
+
+// Tap Dance tap-hold type
+typedef struct {
+    uint16_t tap;
+    uint16_t hold;
+    uint16_t held;
+} tap_dance_tap_hold_t;
+
+void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (state->pressed) {
+        if (state->count == 1
+#ifndef PERMISSIVE_HOLD
+            && !state->interrupted
+#endif
+        ) {
+            register_code16(tap_hold->hold);
+            tap_hold->held = tap_hold->hold;
+        } else {
+            register_code16(tap_hold->tap);
+            tap_hold->held = tap_hold->tap;
+        }
+    }
+}
+
+void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
+    tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
+
+    if (tap_hold->held) {
+        unregister_code16(tap_hold->held);
+        tap_hold->held = 0;
+    }
+}
+
+#define ACTION_TAP_DANCE_TAP_HOLD(tap, hold) \
+    { .fn = {NULL, tap_dance_tap_hold_finished, tap_dance_tap_hold_reset}, \
+      .user_data = (void *)&((tap_dance_tap_hold_t){tap, hold, 0}), }
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_X_CMDX] = ACTION_TAP_DANCE_TAP_HOLD(KC_X, LGUI(KC_X)),
+    [TD_C_CMDC] = ACTION_TAP_DANCE_TAP_HOLD(KC_C, LGUI(KC_C)),
+    [TD_V_CMDV] = ACTION_TAP_DANCE_TAP_HOLD(KC_V, LGUI(KC_V)),
+};
+
 #define LOWER LT(_LOWER,KC_A)
 #define RAISE LT(_RAISE,KC_SCLN)
 #define VIM LT(_VIM,KC_F)
@@ -69,6 +120,20 @@ void send_tmux_key(uint16_t keycode) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    tap_dance_action_t *action;
+
+    switch (keycode) {
+        case TD(TD_X_CMDX):
+        case TD(TD_C_CMDC):
+        case TD(TD_V_CMDV):
+            action = &tap_dance_actions[TD_INDEX(keycode)];
+            if (!record->event.pressed && action->state.count && !action->state.finished) {
+                tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)action->user_data;
+                tap_code16(tap_hold->tap);
+            }
+            break;
+    }
+
     if (record->event.pressed) {
         switch (keycode) {
             case TMUX_C:
@@ -161,7 +226,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV,      KC_VOLD, KC_VOLU, KC_MPLY,       KC_4,   KC_5,   KC_6,    KC_7,    CMD_SHIFT_8,    CMD_SHIFT_9,  CMD_SHIFT_0, RALT(KC_SPC),
   KC_TAB,      KC_Q,    KC_W,    KC_E,          KC_R,   KC_T,   KC_Y,    KC_U,    KC_I,           KC_O,         KC_P,        KC_BSPC,
   KC_LCTL,     LOWER,   KC_S,    KC_D,          VIM,    KC_G,   KC_H,    KC_J,    KC_K,           KC_L,         RAISE,       KC_ENTER,
-  TMUX,        KC_Z,    KC_X,    KC_C,          KC_V,   KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    TMUX,
+  TMUX,        KC_Z,    TD(TD_X_CMDX), TD(TD_C_CMDC), TD(TD_V_CMDV), KC_B,   KC_N,    KC_M,    KC_COMM,        KC_DOT,       KC_SLASH,    TMUX,
   SPACES_LEFT, ADJUST,  KC_LALT, LALT(KC_LEFT), KC_ESC, KC_SPC, KC_RGUI, KC_RSFT, RALT(KC_RIGHT), RALT(KC_SPC), TG(_RESET),  SPACES_RIGHT
 ),
 
